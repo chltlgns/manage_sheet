@@ -1,0 +1,34 @@
+{
+  "timeZone": "Asia/Seoul",
+  "dependencies": {
+    "libraries": [
+      {
+        "userSymbol": "CONFIG",
+        "version": "0",
+        "libraryId": "1VmliJ3NJFbBNEQ7i8WSxSKxGri8da9ndqXsm5WPowQwgcvXqmPcOAZxw",
+        "developmentMode": true
+      }
+    ],
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Drive",
+        "version": "v3",
+        "serviceId": "drive"
+      },
+      {
+        "userSymbol": "Sheets",
+        "version": "v4",
+        "serviceId": "sheets"
+      }
+    ]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/drive.file"
+  ]
+}
