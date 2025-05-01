@@ -1,0 +1,22 @@
+# 의존성
+node_modules/
+
+# 로그
+logs
+*.log
+npm-debug.log*
+
+# 런타임 데이터
+data/
+C:/AutoPrint/
+
+# 환경 설정
+.env
+
+# 인증 정보
+data/credentials.json
+data/token.json
+
+# 임시 파일
+.DS_Store
+Thumbs.db 

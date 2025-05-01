@@ -61,8 +61,6 @@ function downdatacount() {
     '15호': Number(sheet.getRange('R12').getValue()) || 0
   };
   
-  const downData = sheet.getRange('D61:D1061').getValues();
-  
   // 사이즈별 카운트를 저장할 객체
   let sizeCounts = {
     'XS': 0, 'S': 0, 'M': 0, 'L': 0, 'XL': 0,
@@ -70,37 +68,66 @@ function downdatacount() {
     '5호': 0, '7호': 0, '9호': 0, '11호': 0, '13호': 0, '15호': 0
   };
   
-  // downData 카운트 로직
-  downData.forEach(([size]) => {
-    if (!size) return;
-    const upperSize = size.toString().toUpperCase().trim();
-    
-    // 숫자만 입력된 경우 '호'를 붙여서 처리
-    if (['5', '7', '9', '11', '13', '15'].includes(upperSize)) {
-      sizeCounts[upperSize + '호']++;
-      return;
-    }
-    
-    switch (upperSize) {
-      case 'XS': sizeCounts['XS']++; break;
-      case 'S': sizeCounts['S']++; break;
-      case 'M': sizeCounts['M']++; break;
-      case 'L': sizeCounts['L']++; break;
-      case 'XL': sizeCounts['XL']++; break;
-      case '2XL': case 'XXL': sizeCounts['2XL']++; break;
-      case '3XL': case 'XXXL': sizeCounts['3XL']++; break;
-      case '4XL': case 'XXXXL': sizeCounts['4XL']++; break;
-      case '5XL': case 'XXXXXL': sizeCounts['5XL']++; break;
-      case '5호': sizeCounts['5호']++; break;
-      case '7호': sizeCounts['7호']++; break;
-      case '9호': sizeCounts['9호']++; break;
-      case '11호': sizeCounts['11호']++; break;
-      case '13호': sizeCounts['13호']++; break;
-      case '15호': sizeCounts['15호']++; break;
-    }
-  });
+  // 데이터를 청크 단위로 처리하기 위한 변수들
+  const startRow = 61;
+  const lastRow = Math.max(3000, sheet.getLastRow()); // 충분히 큰 값 설정
+  const chunkSize = 100; // 한 번에 처리할 행 수
+  let totalProcessed = 0;
   
-  // 비교 로직 수정
+  // 청크 단위로 데이터 처리
+  for (let currentRow = startRow; currentRow <= lastRow; currentRow += chunkSize) {
+    // 현재 청크의 마지막 행 계산 (마지막 행을 넘어가지 않도록)
+    const endRow = Math.min(currentRow + chunkSize - 1, lastRow);
+    
+    // 데이터 가져오기
+    const range = sheet.getRange(`D${currentRow}:D${endRow}`);
+    const chunkData = range.getValues();
+    
+    Logger.log(`청크 처리 중: D${currentRow}:D${endRow} (${chunkData.length}행)`);
+    
+    // 청크 내 데이터 처리
+    for (let i = 0; i < chunkData.length; i++) {
+      const size = chunkData[i][0];
+      if (!size) continue; // 빈 값은 건너뛰기
+      
+      totalProcessed++;
+      const upperSize = size.toString().toUpperCase().trim();
+      
+      // 숫자만 입력된 경우 '호'를 붙여서 처리
+      if (['5', '7', '9', '11', '13', '15'].includes(upperSize)) {
+        sizeCounts[upperSize + '호']++;
+        continue;
+      }
+      
+      // 케이스 처리
+      switch (upperSize) {
+        case 'XS': sizeCounts['XS']++; break;
+        case 'S': sizeCounts['S']++; break;
+        case 'M': sizeCounts['M']++; break;
+        case 'L': sizeCounts['L']++; break;
+        case 'XL': sizeCounts['XL']++; break;
+        case '2XL': case 'XXL': sizeCounts['2XL']++; break;
+        case '3XL': case 'XXXL': sizeCounts['3XL']++; break;
+        case '4XL': case 'XXXXL': sizeCounts['4XL']++; break;
+        case '5XL': case 'XXXXXL': sizeCounts['5XL']++; break;
+        case '5호': sizeCounts['5호']++; break;
+        case '7호': sizeCounts['7호']++; break;
+        case '9호': sizeCounts['9호']++; break;
+        case '11호': sizeCounts['11호']++; break;
+        case '13호': sizeCounts['13호']++; break;
+        case '15호': sizeCounts['15호']++; break;
+      }
+    }
+    
+    // 현재 행이 마지막 행보다 크거나 같으면 종료
+    if (currentRow + chunkSize > lastRow) {
+      break;
+    }
+  }
+  
+  Logger.log(`총 처리된 항목 수: ${totalProcessed}`);
+  
+  // 나머지 코드는 동일하게 유지
   const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', 
                     '5호', '7호', '9호', '11호', '13호', '15호'];
   
@@ -151,116 +178,16 @@ function downdatacount() {
     resultMessage = '<div style="color: red; font-weight: bold;">수량 및 전체 사이즈를 한 번 더 확인 부탁드립니다</div>';
   }
   
-  compareMessage += resultMessage;
-  
-  // 이니셜 카운트 추가
-  // E, F, G 열의 61행부터 500행까지 데이터 가져오기
-  const initialRanges = [
-    sheet.getRange('E61:E561').getValues(),
-    sheet.getRange('F61:F561').getValues(),
-    sheet.getRange('G61:G561').getValues()
-  ];
-  
-  let initialCount = 0;
-  
-  // 데이터 처리 (E, F, G 열 확인)
-  for (let row = 0; row < 501; row++) {
-    for (let col = 0; col < 3; col++) {
-      if (row < initialRanges[col].length) {
-        const value = initialRanges[col][row][0];
-        if (value !== null && value !== undefined && value !== '') {
-          initialCount++;
-        }
-      }
-    }
-  }
-  
-  // 이니셜 정보 추가
-  compareMessage += `<br><br><b>=== 이니셜 수량 확인 ===</b><br><br>`;
-  compareMessage += `<div>이니셜 총 개수: ${initialCount}개</div>`;
-  
-  // 학번 정보 추가
-  const classNumbers = sheet.getRange('H61:H561').getValues();
-  const uniqueClassNumbers = new Set();
-  
-  // 학번 데이터 처리
-  classNumbers.forEach(([value]) => {
-    if (value !== null && value !== undefined && value !== '') {
-      const strValue = value.toString().trim();
-      
-      // 학번 처리 로직 추가
-      if (/^\d{8,}$/.test(strValue)) {
-        // 8자리 이상의 숫자인 경우 앞 4자리에서 연도 추출
-        const yearFull = strValue.substring(0, 4);
-        if (yearFull.startsWith('20')) {
-          // 2000년대 학번인 경우 마지막 두 자리만 추출 (예: 2025 -> 25)
-          uniqueClassNumbers.add(yearFull.substring(2));
-        } else {
-          uniqueClassNumbers.add(strValue);
-        }
-      } else {
-        uniqueClassNumbers.add(strValue);
-      }
-    }
-  });
-  
-  // 학번 정보를 배열로 변환하고 정렬
-  const classNumbersArray = Array.from(uniqueClassNumbers).sort();
-  
-  // 학번 정보 추가
-  compareMessage += `<br><br><b>=== 학번 확인 ===</b><br><br>`;
-  compareMessage += `<div>학번: ${classNumbersArray.join(', ')}</div></div>`;
+  compareMessage += resultMessage + '</div>';
 
   // HTML 모달 대화상자 표시
   try {
     const htmlOutput = HtmlService
       .createHtmlOutput(compareMessage)
       .setWidth(400)
-      .setHeight(600);
+      .setHeight(500);
     
     SpreadsheetApp.getUi().showModalDialog(htmlOutput, '데이터 확인');
-  } catch (error) {
-    Browser.msgBox('오류 발생', '메시지 표시 중 오류가 발생했습니다: ' + error.toString(), Browser.Buttons.OK);
-  }
-}
-
-function countInitials() {
-  const sheet = SpreadsheetApp.getActiveSheet();
-  
-  // E, F, G 열의 61행부터 500행까지 데이터 가져오기
-  const initialRanges = [
-    sheet.getRange('E61:E561').getValues(),
-    sheet.getRange('F61:F561').getValues(),
-    sheet.getRange('G61:G561').getValues()
-  ];
-  
-  let initialCount = 0;
-  
-  // 데이터 처리 (E, F, G 열 확인)
-  for (let row = 0; row < 501; row++) {
-    for (let col = 0; col < 3; col++) {
-      if (row < initialRanges[col].length) {
-        const value = initialRanges[col][row][0];
-        if (value !== null && value !== undefined && value !== '') {
-          initialCount++;
-        }
-      }
-    }
-  }
-  
-  // 결과 표시
-  let message = `<div style="font-family: Arial; font-size: 12px;">
-    <b>이니셜 수량 확인</b><br><br>
-    <div>이니셜 총 개수: ${initialCount}개</div>
-  </div>`;
-  
-  try {
-    const htmlOutput = HtmlService
-      .createHtmlOutput(message)
-      .setWidth(300)
-      .setHeight(150);
-    
-    SpreadsheetApp.getUi().showModalDialog(htmlOutput, '이니셜 수량 확인');
   } catch (error) {
     Browser.msgBox('오류 발생', '메시지 표시 중 오류가 발생했습니다: ' + error.toString(), Browser.Buttons.OK);
   }

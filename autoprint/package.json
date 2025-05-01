@@ -1,0 +1,17 @@
+{
+  "name": "autoprint",
+  "version": "1.0.0",
+  "description": "Gmail에서 일러스트 파일을 자동으로 프린트하는 시스템",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "setup": "node setup.js",
+    "reset": "node reset_token.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "googleapis": "^105.0.0",
+    "js-base64": "^3.7.5"
+  }
+} 

@@ -70,9 +70,19 @@ function onEditTrigger(e) {
     const processedValues = values.map(rowData => {
       const result = [...rowData];  // 원본 데이터 복사
       
-      // E-F-G 열 처리 (이니셜 부분)
-      if (!result[4]) result[4] = result[3];  // E열이 비어있으면 D열 값으로
-      if (!result[5]) result[5] = result[3];  // F열이 비어있으면 D열 값으로
+      // 이니셜 데이터 처리 
+      let initialData = '';
+      
+      // D, E, F, G열 모두 확인 (병합된 셀이든 아니든 어디든 데이터가 있으면 가져옴)
+      if (result[3] && result[3].toString().trim() !== '') {       // D열에 있는 경우  
+        initialData = result[3];
+      } else if (result[4] && result[4].toString().trim() !== '') { // E열에 있는 경우
+        initialData = result[4];
+      } else if (result[5] && result[5].toString().trim() !== '') { // F열에 있는 경우
+        initialData = result[5];
+      } else if (result[6] && result[6].toString().trim() !== '') { // G열에 있는 경우
+        initialData = result[6];
+      }
       
       // I-J 열 처리 (연락처 부분)
       if (!result[8]) result[8] = result[7];  // I열이 비어있으면 H열 값으로
@@ -80,23 +90,23 @@ function onEditTrigger(e) {
       // K-L 열 처리 (주소 부분)
       if (!result[10]) result[10] = result[9];  // K열이 비어있으면 J열 값으로
       
-      // 중복 데이터 제거 (빈 문자열로 설정)
-      result[4] = '';  // E열 비우기
-      result[5] = '';  // F열 비우기
-      result[8] = '';  // I열 비우기
-      result[10] = ''; // K열 비우기
-      
       // 데이터 이동을 위해 임시 저장
-      const gColData = result[6];   // G열 데이터 임시 저장
       const hColData = result[7];   // H열 데이터 임시 저장
       const jColData = result[9];   // J열 데이터 임시 저장
       const lColData = result[11];  // L열 데이터 임시 저장
       
+      // 중복 데이터 제거 (빈 문자열로 설정)
+      result[4] = '';  // E열 비우기
+      result[5] = '';  // F열 비우기
+      result[6] = '';  // G열 비우기
+      result[8] = '';  // I열 비우기
+      result[10] = ''; // K열 비우기
+      
       // 데이터 이동
-      result[4] = gColData;   // G열 데이터를 E열로
-      result[5] = hColData;   // H열 데이터를 F열로
-      result[6] = jColData;   // J열 데이터를 G열로
-      result[7] = lColData;   // L열 데이터를 H열로
+      result[3] = initialData;  // 이니셜 데이터를 D열로 (E열이 아닌)
+      result[4] = hColData;     // H열 데이터를 E열로
+      result[5] = jColData;     // J열 데이터를 F열로
+      result[6] = lColData;     // L열 데이터를 G열로
       
       // 원래 위치의 데이터 제거
       result[9] = '';    // J열 비우기
